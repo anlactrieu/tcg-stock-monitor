@@ -1,0 +1,117 @@
+# Globale Einstellungen des Monitors.
+# Shops/Quellen stehen in config/sources.yaml.
+
+# Ehrlicher User-Agent. {contact} wird aus der Umgebungsvariable CONTACT
+# (GitHub-Secret) gefüllt, sonst mit der Repo-URL. NIEMALS einen Browser-UA
+# vortäuschen (siehe AGENTS.md -> Rechtliche Leitplanken).
+user_agent: "tcg-stock-monitor/1.0 (privater Verfuegbarkeits-Monitor; Kontakt: {contact})"
+# Token, mit dem robots.txt-Regeln geprüft werden (erster Teil des UA).
+robots_agent: "tcg-stock-monitor"
+
+http:
+  timeout_seconds: 20
+  # Mindestabstand zwischen zwei Requests an denselben Host.
+  # Ist in robots.txt ein höheres Crawl-delay gesetzt, gilt das.
+  min_delay_seconds: 3
+  # Nach einer Blockade (403/429/Captcha) wird die Quelle so lange pausiert.
+  # Es wird NICHT versucht, die Blockade zu umgehen.
+  block_pause_hours: 24
+
+run:
+  # Ein Lauf hört nach so vielen Sekunden auf (Rest im nächsten Lauf).
+  # Muss unter dem Workflow-Timeout (9 Min) bleiben.
+  max_seconds: 420
+
+region:
+  name: "Hamburg"
+
+notify:
+  # Kanal: ntfy (Push-App, kostenlos). Topic kommt aus Secret NTFY_TOPIC.
+  # Ohne NTFY_TOPIC wird nur in die Konsole/Logs geschrieben.
+  server: "https://ntfy.sh"
+  # Mehr Ereignisse als das pro Lauf -> eine Sammelmeldung statt Einzelmeldungen.
+  max_single_messages: 8
+  # Nach so vielen Fehlversuchen in Folge gibt es eine (leise) Fehlermeldung.
+  error_alert_after: 3
+
+# Welche Produkte sind relevant? Gilt für URLs (Sitemaps) und Produktnamen.
+# Alles wird klein geschrieben und Umlaute/Akzente vereinfacht verglichen
+# (pokémon -> pokemon, %C3%A9 -> e).
+matching:
+  # Mindestens EINS davon muss vorkommen:
+  required_any:
+    - "pokemon"
+  # Und mindestens EINS davon (TCG-Produktbegriffe):
+  product_any:
+    - "sammelkart"
+    - "karten"
+    - "tcg"
+    - "trading-card"
+    - "trading card"
+    - "booster"
+    - "display"
+    - "top-trainer"
+    - "top trainer"
+    - "elite-trainer"
+    - "etb"
+    - "tin"
+    - "blister"
+    - "kollektion"
+    - "collection"
+    - "bundle"
+    - "premium"
+    - "spezial"
+    - "deck"
+    - "kp0"
+    - "karmesin"
+    - "mega-entwicklung"
+    - "mega entwicklung"
+  # Und KEINS davon:
+  exclude_any:
+    - "pluesch"
+    - "plusch"
+    - "kuscheltier"
+    - "polaroid"
+    - "vorlesebuch"
+    - "buch"
+    - "malbuch"
+    - "stickeralbum"
+    - "tasse"
+    - "t-shirt"
+    - "shirt"
+    - "pyjama"
+    - "rucksack"
+    - "brotdose"
+    - "trinkflasche"
+    - "lego"
+    - "mega-construx"
+    - "actionfigur"
+    - "nintendo-switch"
+    - "switch"
+    - "kostuem"
+    - "puzzle"
+    # Zubehör/Merchandise (kein Karteninhalt) – 22.10.2026 nach Live-Check Müller ergänzt
+    - "acryl"
+    - "deck-box"
+    - "deck box"
+    - "deckbox"
+    - "protector"
+    - "huellen"
+    - "sleeve"
+    - "album"
+    - "portfolio"
+    - "binder"
+    - "ordner"
+    - "dvd"
+    - "movie"
+    - "der-film"
+    - "film"
+    - "glas"
+    - "funko"
+    - "vinyl"
+    - "figur"
+    - "statue"
+    - "socken"
+    - "socks"
+    - "geschenkpapier"
+    - "nachtlicht"

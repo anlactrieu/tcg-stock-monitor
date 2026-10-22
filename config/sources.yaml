@@ -1,0 +1,114 @@
+# Quellen des Monitors. Neue Shops werden NUR hier eingetragen (kein Code nötig).
+# Anleitung: AGENTS.md -> "Neue Quelle hinzufügen".
+#
+# Typen:
+#   sitemap  – liest die öffentliche XML-Sitemap und meldet neue Produkt-URLs,
+#              die zu `matching` (settings.yaml) passen.
+#   listing  – liest eine öffentliche Kategorie-/Übersichtsseite und meldet neue
+#              Produktlinks (für Shops, deren URLs keinen Produktnamen enthalten).
+#   products – feste Beobachtungsliste einzelner Produktseiten.
+#
+# Für jedes gefundene Produkt wird die Produktseite regelmäßig auf
+# Verfügbarkeit geprüft (schema.org JSON-LD, sonst die Regex-Fallbacks).
+#
+# Gemeinsame Felder:
+#   id               eindeutig, nur a-z0-9_-
+#   name             Anzeigename in Benachrichtigungen
+#   enabled          true/false
+#   every_minutes    wie oft die Entdeckung (Sitemap/Listing) läuft
+#   product_every_minutes  wie oft eine bekannte Produktseite erneut geprüft wird
+#   max_product_checks     Produktseiten pro Lauf (Last begrenzen!)
+#   region_hint      Zusatztext für Hamburg in der Benachrichtigung
+#   in_stock_patterns / out_of_stock_patterns  (optional) Regex-Fallbacks,
+#                    falls die Seite kein JSON-LD mit availability hat.
+
+sources:
+  - id: rossmann
+    name: "Rossmann"
+    type: sitemap
+    enabled: true
+    # robots.txt (geprüft 21.10.2026): Sitemaps erlaubt, /de/search/* und
+    # Query-Parameter gesperrt -> wir nutzen nur Sitemap + Produktseiten.
+    index_url: "https://www.rossmann.de/de/sitemap_index.xml"
+    child_include: "/Product-\\d+\\.xml"
+    every_minutes: 30
+    product_every_minutes: 15
+    max_product_checks: 25
+    region_hint: "Filialbestand Hamburg: Rossmann-App > Filiale wählen."
+    in_stock_patterns: []
+    out_of_stock_patterns: ["(?i)online nicht verf(ü|ue)gbar", "(?i)ausverkauft"]
+
+  - id: mueller
+    name: "Müller"
+    type: sitemap
+    enabled: true
+    # robots.txt (geprüft 21.10.2026): nur /cart/, /checkout/, /my-account/ gesperrt.
+    index_url: "https://www.mueller.de/sitemaps/sitemap.xml"
+    child_include: "/pdp-sitemap"
+    every_minutes: 30
+    product_every_minutes: 15
+    max_product_checks: 25
+    region_hint: "Filialverfügbarkeit Hamburg auf der Produktseite prüfen."
+    in_stock_patterns: []
+    out_of_stock_patterns: ["(?i)online nicht verf(ü|ue)gbar", "(?i)ausverkauft"]
+
+  - id: smyths
+    name: "Smyths Toys"
+    type: sitemap
+    # AUS (Live-Check 22.10.2026): sitemap.xml liefert eine Bot-Challenge-Seite
+    # -> Smyths blockt Bots. Nicht umgehen (AGENTS.md Leitplanke 3).
+    # Stattdessen Smyths-Newsletter/Benachrichtigung nutzen.
+    enabled: false
+    # robots.txt (geprüft 21.10.2026): nur Warenkorb/Checkout/Konto gesperrt.
+    # Sitemap wird laut lastmod nur selten aktualisiert -> seltener abfragen.
+    index_url: "https://www.smythstoys.com/de/de-de/sitemap.xml"
+    child_include: "/product-de-eur\\.xml"
+    every_minutes: 180
+    product_every_minutes: 20
+    max_product_checks: 15
+    region_hint: "Smyths Hamburg: Click & Collect auf der Produktseite prüfen."
+    in_stock_patterns: []
+    out_of_stock_patterns: ["(?i)nicht vorr(ä|ae)tig", "(?i)ausverkauft"]
+
+  - id: thalia
+    name: "Thalia"
+    type: listing
+    # Thalia-URLs enthalten keinen Produktnamen (…/artikeldetails/A123…),
+    # deshalb wird eine Kategorie-Seite gelesen. /suche ist per robots.txt
+    # gesperrt und darf NICHT genutzt werden; /kategorie/ ist erlaubt.
+    # AUS (Live-Check 22.10.2026): thalia.de antwortet GitHub-/Bot-Anfragen mit
+    # 403 "Sicherheits-Check" (auch robots.txt). Nicht umgehen -> deaktiviert lassen.
+    # Falls Thalia das irgendwann öffnet: Kategorie-URL eintragen, enabled: true.
+    # So findest du sie: thalia.de im Browser > Spielwaren > Sammelkarten >
+    # Pokémon, die URL aus der Adresszeile kopieren (muss /kategorie/ enthalten).
+    enabled: false
+    urls:
+      - "https://www.thalia.de/kategorie/HIER-KATEGORIE-EINTRAGEN/"
+    link_pattern: "/shop/home/artikeldetails/A\\d+"
+    # Kategorie ist schon Pokémon-gefiltert -> Links nicht nochmal filtern.
+    # Der Produktname wird nach dem Seitenabruf trotzdem geprüft.
+    assume_relevant: true
+    every_minutes: 20
+    product_every_minutes: 15
+    max_product_checks: 20
+    region_hint: "Thalia Hamburg (z. B. Europa Passage): Filialverfügbarkeit auf der Produktseite."
+    in_stock_patterns: []
+    out_of_stock_patterns: ["(?i)derzeit nicht verf(ü|ue)gbar", "(?i)nicht lieferbar"]
+
+  - id: watchlist
+    name: "Beobachtungsliste"
+    type: products
+    # Einzelne Produktseiten, die du gezielt beobachten willst (beliebige Shops,
+    # sofern robots.txt das erlaubt – wird automatisch geprüft).
+    enabled: false
+    urls: []
+    product_every_minutes: 10
+    max_product_checks: 20
+    region_hint: ""
+
+  # ------------------------------------------------------------------------
+  # Bewusst NICHT automatisiert:
+  # - Pokémon Center (pokemoncenter.com): starker Bot-Schutz + Nutzungsbedingungen.
+  #   Nur offizielle Kanäle nutzen: Newsletter und "Benachrichtigen"-Button.
+  # - Shops, die GitHub-Server blockieren (403/Captcha): werden automatisch
+  #   pausiert. Niemals mit Proxys/Fake-Browsern umgehen.

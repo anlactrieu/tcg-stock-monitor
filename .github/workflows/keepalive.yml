@@ -1,0 +1,24 @@
+# GitHub deaktiviert geplante Workflows in öffentlichen Repos nach 60 Tagen
+# ohne Aktivität. Dieser Job macht einmal im Monat einen kleinen Commit auf main.
+name: keepalive
+
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u +%Y-%m-%dT%H:%MZ > .github/keepalive
+          git config user.name "tcg-monitor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive
+          git commit -m "chore: keepalive [skip ci]" || exit 0
+          git push
