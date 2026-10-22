@@ -26,7 +26,9 @@ sources:
   - id: rossmann
     name: "Rossmann"
     type: sitemap
-    enabled: true
+    # AUS (Live-Check 22.10.2026): Sitemaps laden, aber Produktseiten liefern eine
+    # JS-"Client Challenge" (kein Status lesbar). Nicht umgehen (Leitplanke 3).
+    enabled: false
     # robots.txt (geprüft 21.10.2026): Sitemaps erlaubt, /de/search/* und
     # Query-Parameter gesperrt -> wir nutzen nur Sitemap + Produktseiten.
     index_url: "https://www.rossmann.de/de/sitemap_index.xml"

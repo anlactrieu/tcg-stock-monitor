@@ -32,6 +32,8 @@ CHALLENGE_MARKERS = (
     "request unsuccessful",
     "pardon our interruption",
     "bot detection",
+    "<title>client challenge</title>",
+    "/_fs-ch-",
 )
 BLOCK_STATUS = {401, 403, 429}
 MAX_BYTES = 40 * 1024 * 1024  # Schutz gegen riesige Antworten

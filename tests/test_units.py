@@ -104,6 +104,12 @@ class FetcherTest(unittest.TestCase):
         with self.assertRaises(Blocked):
             c.get("https://a.test/p")
 
+    def test_js_client_challenge_is_blocked(self):
+        html = '<html><head><title>Client Challenge</title><link href="/_fs-ch-x/a.css"></head><body>JavaScript</body></html>'
+        c = self.client({"https://a.test/p": (200, html)})
+        with self.assertRaises(Blocked):
+            c.get("https://a.test/p")
+
     def test_throttle(self):
         slept = []
         t = [0.0]

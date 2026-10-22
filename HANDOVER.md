@@ -9,7 +9,7 @@ in Abschnitt 1 sind verbindlich und dürfen nicht abgeschwächt werden.
   Weiterleitungen), Drosselung, Erkennung von Blockaden mit 24-h-Pause, Zeitbudget
   pro Lauf, ntfy-Push.
 - Konfiguration: `config/settings.yaml` (Filter) und `config/sources.yaml`
-  (Rossmann, Müller und Smyths aktiv; Thalia mit Platzhalter, deaktiviert; Watchlist leer).
+  (nur Müller aktiv; Rossmann, Smyths und Thalia wegen Bot-Schutz aus; Thalia mit Platzhalter, deaktiviert; Watchlist leer).
 - GitHub-Workflows: `monitor.yml` (alle 10 Min, Zustand auf Branch `state`),
   `tests.yml`, `keepalive.yml`, `notify-test.yml`.
 - 39 Unit-Tests (`python3 -m unittest discover -s tests -t .`), alle grün.
@@ -27,7 +27,7 @@ einzigen echten Abruf.** Bekannt aus robots.txt bzw. Sitemaps (über ein Web-Too
 
 ## Live-Check 22.10.2026 (erledigt)
 - venv eingerichtet, 39 Tests grün, Archiv gelöscht.
-- **rossmann**: robots/Sitemaps laden (7 Dateien, ~25 s). Aktuell KEINE Pokémon-Karten in der Sitemap (nur Figuren/Puzzle/Plüsch) – 0 Treffer ist korrekt. Neue Produkte würden gemeldet.
+- **rossmann** (AUS seit 22.10. nachmittags): Produktseiten liefern JS-"Client Challenge" (HTTP 200, kein Status lesbar) -> Marker in `fetcher.CHALLENGE_MARKERS` ergänzt + Test, Quelle deaktiviert. Davor: robots/Sitemaps laden (7 Dateien, ~25 s). Aktuell KEINE Pokémon-Karten in der Sitemap (nur Figuren/Puzzle/Plüsch) – 0 Treffer ist korrekt. Neue Produkte würden gemeldet.
 - **mueller**: Sitemap + JSON-LD-Status funktionieren (Methode jsonld). Filter war zu locker (Deck-Boxen, Hüllen, DVDs, Gläser) -> `exclude_any` ergänzt. Aktuell 0 echte Karten-Produkte.
 - **smyths**: Bot-Challenge auf sitemap.xml -> `enabled: false` (nicht umgehen).
 - **thalia**: 403 "Sicherheits-Check" schon bei robots.txt -> bleibt `enabled: false`.
