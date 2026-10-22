@@ -190,3 +190,26 @@ class DiscoveryOnlyTest(_Base, unittest.TestCase):
         self.assertNotIn(NEW, session.calls, "Produktseite darf nicht abgerufen werden")
         events, _ = run({INDEX: (200, index2), CHILD: (200, child2)}, 80)
         self.assertEqual(events, [], "keine doppelte Meldung")
+
+
+class RssTest(_Base, unittest.TestCase):
+    FEED = "https://feed.test/rss"
+
+    def _feed(self, *titles):
+        items = "".join(f"<item><title>{t}</title><link>https://deal.test/{i}</link><guid>g-{t}</guid></item>"
+                        for i, t in enumerate(titles))
+        return f'<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>{items}</channel></rss>'
+
+    def test_rss_new_matching_items_only(self):
+        src = Source("feed", "Feed", "rss", {"id": "feed", "type": "rss", "urls": [self.FEED], "every_minutes": 10})
+        def run(body, minutes_later):
+            session = FakeSession({self.FEED: (200, body)})
+            client = PoliteClient("ua", "tcg-stock-monitor", min_delay=0, session=session, sleep=no_sleep)
+            return Runner(self.settings, [src], self.state, client, Matcher.from_config(self.settings["matching"]),
+                          self.now + timedelta(minutes=minutes_later)).run()
+        ev = run(self._feed("Pokemon Center Top Trainer Box"), 0)
+        self.assertEqual(ev, [], "Baseline")
+        ev = run(self._feed("Pokémon Booster Display neu", "Pokemon Center Top Trainer Box", "Pokémon Plüsch Pikachu"), 20)
+        self.assertEqual([e.title for e in ev], ["Pokémon Booster Display neu"])
+        self.assertEqual(ev[0].kind, "deal")
+        self.assertEqual(run(self._feed("Pokémon Booster Display neu"), 40), [])

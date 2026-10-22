@@ -10,7 +10,7 @@ from . import parsing
 from .config import Source
 from .fetcher import Blocked, Disallowed, FetchError, PoliteClient
 from .matching import Matcher
-from .notify import AVAILABLE, BLOCKED, ERROR, NEW_LISTING, PREORDER, Event
+from .notify import AVAILABLE, BLOCKED, DEAL, ERROR, NEW_LISTING, PREORDER, Event
 from .state import State, iso, is_due, parse_iso
 
 log = logging.getLogger(__name__)
@@ -60,10 +60,12 @@ class Runner:
         try:
             # 1) Entdecken – Fehler hier dürfen die Produktprüfung NICHT verhindern
             try:
-                if src.type in ("sitemap", "listing"):
+                if src.type in ("sitemap", "listing", "rss"):
                     if is_due(sst.get("last_discovery"), src.every_minutes, self.now):
                         if src.type == "sitemap":
                             self.discover_sitemap(src, sst)
+                        elif src.type == "rss":
+                            self.discover_rss(src, sst)
                         else:
                             self.discover_listing(src, sst)
                         sst["last_discovery"] = iso(self.now)
@@ -172,6 +174,24 @@ class Runner:
                 if src.assume_relevant or self.matcher.matches(link):
                     self._register(src, link, None, seeded)
 
+    def discover_rss(self, src: Source, sst: dict) -> None:
+        """Öffentlicher RSS-Feed (z. B. Community-Deals): neue, zum Filter passende Einträge melden.
+        Der erste Lauf ist Baseline (keine Meldungen)."""
+        seeded = bool(sst.get("seeded"))
+        seen = list(sst.get("seen_items", []))
+        seen_set = set(seen)
+        for feed_url in src.urls:
+            resp = self.client.get(feed_url)
+            for item in parsing.parse_rss(resp.content or resp.text.encode()):
+                if item.guid in seen_set:
+                    continue
+                seen_set.add(item.guid)
+                seen.append(item.guid)
+                if seeded and self.matcher.matches(item.title):
+                    self.events.append(Event(DEAL, src.name, item.title, url=item.link or None,
+                                             hint=src.region_hint or None))
+        sst["seen_items"] = seen[-500:]
+
     def sync_watchlist(self, src: Source) -> None:
         for url in src.urls:
             if url not in self.state.products:
@@ -204,6 +224,8 @@ class Runner:
             self.events.append(Event(NEW_LISTING, src.name, title, url=url, hint=src.region_hint or None))
 
     def check_products(self, src: Source) -> None:
+        if src.type == "rss":
+            return
         if src.discovery_only:
             self._report_new_only(src)
             return

@@ -66,6 +66,11 @@ matching:
     - "karmesin"
     - "mega-entwicklung"
     - "mega entwicklung"
+    - "fatale flammen"
+    - "fatale-flammen"
+    - "festtagskalender"
+    - "holiday calendar"
+    - "adventskalender"
   # Und KEINS davon:
   exclude_any:
     - "pluesch"
@@ -124,3 +129,6 @@ matching:
     - "koffer"
     - "munze"
     - "einzelkarte"
+    - "ferrero"
+    - "blu-ray"
+    - "tonie"

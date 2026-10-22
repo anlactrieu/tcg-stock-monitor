@@ -107,6 +107,12 @@ python -m unittest discover -s tests -t .
 NICHT abgerufen; es gibt nur "neu gelistet"-Meldungen (kein Lagerstatus). Beispiele:
 `rossmann` (Client Challenge), `mightycards` (Ecwid-JS-Seite).
 
+### 3.1b Community-Feeds (`type: rss`)
+Öffentlicher RSS-2.0-Feed (z. B. mydealz-Gruppe Pokémon): neue Einträge, deren Titel zu `matching`
+passt, werden als "Community-Fund" gemeldet (`runner.discover_rss`). Wir lesen nur den Feed, nie die
+Shops – so kommen auch Funde von Thalia, Rossmann und Pokémon Center ohne Umgehung von Schutz.
+Vor dem Eintragen: robots.txt des Feeds prüfen (`python -m monitor robots URL`).
+
 ### 3.2 Thalia aktivieren
 In `sources.yaml` bei `thalia` die Platzhalter-URL durch die echte
 Kategorie-URL ersetzen (muss `/kategorie/` enthalten, NICHT `/suche`) und

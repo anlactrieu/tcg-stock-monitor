@@ -1,24 +1,27 @@
-# HANDOFF – 22.10.2026
+# HANDOFF – 22.10.2026 (spät)
 
 ## Stand
-- Lokal fertig: venv (`.venv`, Python 3.9), 39 Tests grün, `validate` ok, git-Repo initialisiert, 1 Commit (`d3aa87c`).
-- Noch KEIN GitHub-Repo, KEIN Secret, KEINE Pings. Wartet auf ntfy-Topic vom Nutzer + Go für Repo (öffentlich oder privat).
+- Repo live: https://github.com/anlactrieu/tcg-stock-monitor (öffentlich), Secret `NTFY_TOPIC=pkmntcgping` gesetzt, Workflow-Rechte write, `notify-test` grün, `monitor` läuft alle 10 Min ohne Fehler.
+- 41 Tests grün. Aktive Quellen: **mueller** (voller Status), **rossmann** + **mightycards** (`discovery_only`, nur „neu gelistet“). Aus: smyths, thalia (Bot-Schutz), watchlist (leer).
+- Noch nie ein echter Fund-Ping beobachtet (Müller/Rossmann haben aktuell keine Karten-Produkte).
 
 ## Letzte 3 Entscheidungen
-1. **Smyths + Thalia `enabled: false`** – Smyths liefert Bot-Challenge, Thalia 403 schon bei robots.txt. Leitplanke 3: nicht umgehen.
-2. **Müller-Filter verschärft** (`matching.exclude_any` in `config/settings.yaml`) – Live-Check lieferte nur Zubehör/DVDs/Gläser/Funko.
-3. **MediaMarkt/Saturn nicht als Sitemap-Quelle** – 146 Dateien × 10k URLs ohne lastmod sprengen das 420-s-Budget; nur Watchlist sinnvoll.
+1. **`discovery_only`-Option** (`runner._report_new_only`, `config.DEFAULTS`) – Rossmann-Produktseiten liefern JS-„Client Challenge“, Mighty-Cards ist Ecwid-JS-App ohne Status im HTML. Nur Sitemap lesen, nie Produktseiten → legal, aber ohne Lagerstatus.
+2. **Rossmann zuerst aus, dann als discovery_only wieder an** – Challenge-Marker (`<title>client challenge</title>`, `/_fs-ch-`) in `fetcher.CHALLENGE_MARKERS` + Test.
+3. **Mighty-Cards aufgenommen, Gate-to-the-Games nicht** – GTTG: 88k URLs/12-MB-Sitemaps, fast nur Einzelkarten, zu schwer für den Takt.
 
 ## Offene TODOs
-- Nutzer: ntfy-Topic nennen (geheim, nur als Secret `NTFY_TOPIC`).
-- `gh repo create tcg-stock-monitor --public --source . --push`, `gh secret set NTFY_TOPIC`, Workflow-Schreibrechte, `gh workflow run notify-test` / `monitor`.
-- Weitere Quellen prüfen (Galeria, Spiele Max, Kaufland, lokale Hamburger TCG-Shops): robots.txt + Blockade.
-- Sobald echte Karten-Produkte auftauchen: `check-url`, Fixture + Test.
+- Nutzer: ntfy-App-Ping vom `notify-test` bestätigen; Topic `pkmntcgping` ist erratbar → besser Zufallssuffix (Secret + App-Abo tauschen).
+- Watchlist mit konkreten MediaMarkt/Saturn/anderen Produkt-URLs füllen (Nutzer liefert Links), je `check-url` prüfen.
+- Hamburger Läden/weitere Shops (Spiele Max, Alternate, Fantasywelt, Hugendubel, Netto, Rewe nicht geprüft/ohne Namen in Sitemap) sichten.
+- Optional: Statusseite (GitHub Pages) aus `state`-Branch; Nutzer hat Rückfrage („Frontend“) offen gelassen.
+- Ping-Kette mit echtem Fund bleibt unbelegt; Statuserkennung nur an Müller-Zubehör gesehen.
 
 ## Relevante Stellen
-`config/settings.yaml` (matching), `config/sources.yaml`, `monitor/runner.py` (`run_source`, `discover_sitemap`), `monitor/fetcher.py` (`PoliteClient`, Blockade-Erkennung), `monitor/__main__.py` (CLI).
+`monitor/runner.py` (`run_source`, `check_products`, `_report_new_only`, `_apply`), `monitor/fetcher.py` (`CHALLENGE_MARKERS`, `looks_like_challenge`, `PoliteClient.get`), `config/sources.yaml`, `config/settings.yaml` (`matching.exclude_any`), `tests/test_runner.py::DiscoveryOnlyTest`.
 
 ## Learnings
-- Rossmann hat aktuell 0 TCG-Produkte in der Sitemap; 0 Treffer ist kein Fehler.
-- Filialbestand Hamburg ist nur über interne APIs abrufbar (verboten) – Meldungen zeigen nur Online-Status.
-- Lokal: `timeout` fehlt auf macOS; `PYTHONWARNINGS=ignore` unterdrückt LibreSSL-Warnung; `LOG_LEVEL=DEBUG` zeigt Requests; `--state /tmp/x.json` hält den echten Zustand sauber.
+- `looks_like_challenge` schlägt bei MediaMarkt/Saturn-robots.txt an (`/cdn-cgi/challenge-platform/` steht in Disallow) → robots.txt-Text nie auf Marker prüfen, falls MediaMarkt je aufgenommen wird.
+- Bot-Challenges kommen oft als HTTP 200 (Rossmann), nicht 403 – `check-url` auf echte Produktseite vor Aufnahme einer Quelle ist Pflicht; Sitemap-Erfolg beweist nichts.
+- Sitemap-Einträge können Produkte enthalten, die im Shop-Frontend noch nicht sichtbar sind (Vorab-Anlage).
+- Pokémon Center bleibt bewusst ausgeschlossen (Leitplanke 7); nur Newsletter/Benachrichtigen-Button.

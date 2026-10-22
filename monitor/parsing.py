@@ -83,6 +83,26 @@ _AVAIL_MAP = {
 
 
 @dataclass
+class FeedItem:
+    guid: str
+    title: str
+    link: str
+
+
+def parse_rss(xml_bytes: bytes) -> list[FeedItem]:
+    """RSS-2.0-Feed -> Einträge (Titel, Link, guid). Atom wird nicht unterstützt."""
+    root = ET.fromstring(xml_bytes)
+    items = []
+    for it in root.iter("item"):
+        title = (it.findtext("title") or "").strip()
+        link = (it.findtext("link") or "").strip()
+        guid = (it.findtext("guid") or link or title).strip()
+        if title and guid:
+            items.append(FeedItem(guid=guid, title=html_lib.unescape(title), link=link))
+    return items
+
+
+@dataclass
 class ProductInfo:
     status: str = UNKNOWN
     name: str | None = None

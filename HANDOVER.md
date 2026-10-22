@@ -40,6 +40,10 @@ einzigen echten Abruf.** Bekannt aus robots.txt bzw. Sitemaps (über ein Web-Too
 - Geprüft, nicht aufgenommen: gate-to-the-games.de (88.000 URLs, 12-MB-Sitemaps, fast nur Einzelkarten), alternate.de (nicht geprüft), galeria/kaufland/real/ebay/conrad blocken.
 - Gotcha: `looks_like_challenge` schlägt bei robots.txt von MediaMarkt/Saturn an (Pfad `/cdn-cgi/challenge-platform/` steht in Disallow) – robots.txt-Text nicht auf Marker prüfen, falls MediaMarkt je aufgenommen wird.
 
+## Update 22.10.2026 (RSS)
+- Neuer Quelltyp `rss` + Event `deal` (Priorität 4). Quelle `mydealz`: Feed `/rss/gruppe/pokemon`, alle 10 Min. Liefert Funde auch von Pokémon Center DE, Thalia, Rossmann, Netto, Rewe, Expert, Amazon. Test `RssTest`.
+- Weitere Feeds (Gruppen/Händler bei mydealz) nach 3.1b ergänzen; E-Mail-Weiterleitung der Shop-Benachrichtigungen nach ntfy ist noch offen.
+
 ## Offene Aufgaben (in dieser Reihenfolge)
 1. GitHub: öffentliches Repo anlegen + pushen, Secret `NTFY_TOPIC` (vom Nutzer), Workflow-Schreibrechte, `notify-test` und `monitor` starten (siehe Befehle unten).
 2. Weitere Quellen nach AGENTS.md 3.1 prüfen (Galeria, Spiele Max, Kaufland, lokale Hamburger TCG-Shops): jeweils robots.txt + Blockade.

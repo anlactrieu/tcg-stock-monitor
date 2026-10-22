@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 AVAILABLE = "available"
 PREORDER = "preorder"
 NEW_LISTING = "new_listing"
+DEAL = "deal"
 BLOCKED = "blocked"
 ERROR = "error"
 
@@ -27,6 +28,7 @@ _STYLE = {
     AVAILABLE: ("Jetzt verfügbar", 5, ["green_circle", "shopping_cart"]),
     PREORDER: ("Vorbestellbar", 4, ["large_blue_circle", "calendar"]),
     NEW_LISTING: ("Neu gelistet", 3, ["new"]),
+    DEAL: ("Community-Fund", 4, ["loudspeaker"]),
     BLOCKED: ("Quelle pausiert", 2, ["warning"]),
     ERROR: ("Quelle fehlerhaft", 2, ["x"]),
 }

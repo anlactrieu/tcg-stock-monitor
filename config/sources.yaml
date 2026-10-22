@@ -83,6 +83,18 @@ sources:
     in_stock_patterns: []
     out_of_stock_patterns: ["(?i)nicht vorr(ä|ae)tig", "(?i)ausverkauft"]
 
+  - id: mydealz
+    name: "mydealz (Community)"
+    type: rss
+    # Öffentlicher RSS-Feed der Gruppe Pokémon. robots.txt (geprüft 22.10.2026): /rss erlaubt.
+    # Nutzer melden dort Funde/Restocks (auch Thalia, Rossmann, Pokémon Center, MediaMarkt).
+    # Wir lesen NUR den Feed, nicht die Shops. Meldung = Community-Fund, bitte Link prüfen.
+    enabled: true
+    urls:
+      - "https://www.mydealz.de/rss/gruppe/pokemon"
+    every_minutes: 10
+    region_hint: "Fund aus der Community – Shop & Verfügbarkeit im Link prüfen."
+
   - id: thalia
     name: "Thalia"
     type: listing

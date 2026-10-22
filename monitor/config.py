@@ -10,7 +10,7 @@ import yaml
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = os.path.join(ROOT, "config")
 
-TYPES = {"sitemap", "listing", "products"}
+TYPES = {"sitemap", "listing", "products", "rss"}
 DEFAULTS = {
     "enabled": True,
     "every_minutes": 30,
@@ -27,6 +27,7 @@ REQUIRED = {
     "sitemap": ["index_url"],
     "listing": ["urls", "link_pattern"],
     "products": ["urls"],
+    "rss": ["urls"],
 }
 
 
