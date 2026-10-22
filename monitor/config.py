@@ -20,6 +20,7 @@ DEFAULTS = {
     "in_stock_patterns": [],
     "out_of_stock_patterns": [],
     "assume_relevant": False,
+    "discovery_only": False,
     "urls": [],
 }
 REQUIRED = {

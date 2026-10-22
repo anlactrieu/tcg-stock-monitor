@@ -193,7 +193,20 @@ class Runner:
         ))
         return due[: int(src.max_product_checks)]
 
+    def _report_new_only(self, src: Source) -> None:
+        """discovery_only: Produktseiten werden nicht abgerufen (z. B. Bot-Schutz oder
+        JS-Seite ohne lesbaren Status). Neue Produkt-URLs werden nur als "neu gelistet" gemeldet."""
+        for url, p in self.state.products_of(src.id).items():
+            if not p.pop("pending_new", False):
+                continue
+            slug = url.rstrip("/").rsplit("/", 1)[-1] if "/p/" not in url else url.split("/p/")[0].rsplit("/", 1)[-1]
+            title = re.sub(r"[-_]+", " ", slug).strip() or url
+            self.events.append(Event(NEW_LISTING, src.name, title, url=url, hint=src.region_hint or None))
+
     def check_products(self, src: Source) -> None:
+        if src.discovery_only:
+            self._report_new_only(src)
+            return
         for url, p in self._due_products(src):
             if self._out_of_time():
                 log.warning("[%s] Zeitbudget erschöpft, restliche Produkte im nächsten Lauf", src.id)

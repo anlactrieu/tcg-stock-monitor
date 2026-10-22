@@ -102,6 +102,11 @@ python -m unittest discover -s tests -t .
 5. `validate` + Tests, committen. Im GitHub-Tab "Actions" ⇒ `monitor` ⇒
    "Run workflow" mit `source = <id>` manuell testen.
 
+### 3.1a Shop ohne lesbaren Status (Bot-Schutz auf Produktseiten / JS-App)
+`discovery_only: true` in der Quelle: nur die Sitemap wird gelesen, Produktseiten werden
+NICHT abgerufen; es gibt nur "neu gelistet"-Meldungen (kein Lagerstatus). Beispiele:
+`rossmann` (Client Challenge), `mightycards` (Ecwid-JS-Seite).
+
 ### 3.2 Thalia aktivieren
 In `sources.yaml` bei `thalia` die Platzhalter-URL durch die echte
 Kategorie-URL ersetzen (muss `/kategorie/` enthalten, NICHT `/suche`) und

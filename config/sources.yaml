@@ -26,19 +26,30 @@ sources:
   - id: rossmann
     name: "Rossmann"
     type: sitemap
-    # AUS (Live-Check 22.10.2026): Sitemaps laden, aber Produktseiten liefern eine
-    # JS-"Client Challenge" (kein Status lesbar). Nicht umgehen (Leitplanke 3).
-    enabled: false
+    # discovery_only: Produktseiten liefern eine JS-"Client Challenge" (Live-Check
+    # 22.10.2026) -> sie werden NICHT abgerufen. Es gibt nur "neu gelistet"-Meldungen
+    # aus der öffentlichen Sitemap (kein Lagerstatus). Keine Umgehung (Leitplanke 3).
+    discovery_only: true
+    enabled: true
     # robots.txt (geprüft 21.10.2026): Sitemaps erlaubt, /de/search/* und
-    # Query-Parameter gesperrt -> wir nutzen nur Sitemap + Produktseiten.
+    # Query-Parameter gesperrt -> wir nutzen nur die Sitemap.
     index_url: "https://www.rossmann.de/de/sitemap_index.xml"
     child_include: "/Product-\\d+\\.xml"
     every_minutes: 30
-    product_every_minutes: 15
-    max_product_checks: 25
-    region_hint: "Filialbestand Hamburg: Rossmann-App > Filiale wählen."
-    in_stock_patterns: []
-    out_of_stock_patterns: ["(?i)online nicht verf(ü|ue)gbar", "(?i)ausverkauft"]
+    region_hint: "Rossmann: Online-Shop prüfen, Filialbestand Hamburg in der Rossmann-App."
+
+  - id: mightycards
+    name: "Mighty-Cards"
+    type: sitemap
+    # TCG-Fachshop (Online, Sitzland Hessen). robots.txt (geprüft 22.10.2026): nur /wp-admin/ gesperrt.
+    # Produktseiten sind eine JS-App (Ecwid) ohne Status im HTML -> discovery_only:
+    # Meldung, sobald ein neues Pokémon-Produkt (Top Trainer Box, Display, Bundle …) gelistet wird.
+    discovery_only: true
+    enabled: true
+    index_url: "https://www.mighty-cards.de/wp-sitemap.xml"
+    child_include: "ecstore"
+    every_minutes: 20
+    region_hint: "Online-Shop (Versand), kein Hamburger Laden."
 
   - id: mueller
     name: "Müller"

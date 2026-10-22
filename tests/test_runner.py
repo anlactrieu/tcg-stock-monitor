@@ -169,3 +169,24 @@ class FetcherSafetyTest(unittest.TestCase):
             with self.assertRaises(FetchError):
                 c.get(f"https://a.test/p/{i}")
         self.assertEqual(session.calls, ["https://a.test/robots.txt"])
+
+
+class DiscoveryOnlyTest(_Base, unittest.TestCase):
+    def test_new_listing_without_product_fetch(self):
+        src = Source("shop", "Testshop", "sitemap", dict(SRC.raw, discovery_only=True))
+        def run(routes, minutes_later):
+            session = FakeSession(routes)
+            client = PoliteClient("ua", "tcg-stock-monitor", min_delay=0, session=session, sleep=no_sleep)
+            runner = Runner(self.settings, [src], self.state, client,
+                            Matcher.from_config(self.settings["matching"]), self.now + timedelta(minutes=minutes_later))
+            return runner.run(), session
+        index, child = sitemap_with(TTB)
+        events, session = run({INDEX: (200, index), CHILD: (200, child)}, 0)
+        self.assertEqual(events, [], "Baseline meldet nichts")
+        index2, child2 = sitemap_with(TTB, NEW, lastmod="2026-10-21")
+        events, session = run({INDEX: (200, index2), CHILD: (200, child2)}, 40)
+        self.assertEqual([e.kind for e in events], [NEW_LISTING])
+        self.assertEqual(events[0].url, NEW)
+        self.assertNotIn(NEW, session.calls, "Produktseite darf nicht abgerufen werden")
+        events, _ = run({INDEX: (200, index2), CHILD: (200, child2)}, 80)
+        self.assertEqual(events, [], "keine doppelte Meldung")

@@ -9,7 +9,7 @@ in Abschnitt 1 sind verbindlich und dürfen nicht abgeschwächt werden.
   Weiterleitungen), Drosselung, Erkennung von Blockaden mit 24-h-Pause, Zeitbudget
   pro Lauf, ntfy-Push.
 - Konfiguration: `config/settings.yaml` (Filter) und `config/sources.yaml`
-  (nur Müller aktiv; Rossmann, Smyths und Thalia wegen Bot-Schutz aus; Thalia mit Platzhalter, deaktiviert; Watchlist leer).
+  (Müller voll aktiv; Rossmann + Mighty-Cards als `discovery_only` (nur "neu gelistet"); Smyths und Thalia wegen Bot-Schutz aus; Thalia mit Platzhalter, deaktiviert; Watchlist leer).
 - GitHub-Workflows: `monitor.yml` (alle 10 Min, Zustand auf Branch `state`),
   `tests.yml`, `keepalive.yml`, `notify-test.yml`.
 - 39 Unit-Tests (`python3 -m unittest discover -s tests -t .`), alle grün.
@@ -33,6 +33,12 @@ einzigen echten Abruf.** Bekannt aus robots.txt bzw. Sitemaps (über ein Web-Too
 - **thalia**: 403 "Sicherheits-Check" schon bei robots.txt -> bleibt `enabled: false`.
 - **MediaMarkt/Saturn**: robots erlaubt Produktseiten, aber 146 Sitemap-Dateien à 10.000 URLs ohne lastmod = zu schwer für den 10-Min-Takt. Nur sinnvoll über `watchlist` (einzelne Produkt-URLs).
 - Filialbestand Hamburg ist über öffentliche Seiten nicht abrufbar (nur interne APIs, verboten). Die Meldung zeigt Online-Status + Link, Filiale in der Shop-App prüfen.
+
+## Update 22.10.2026 (spät)
+- Neue Option `discovery_only` (runner `_report_new_only`, Test `DiscoveryOnlyTest`). Rossmann wieder an, nur Entdeckung.
+- **mightycards** (TCG-Fachshop, 645 Pokémon-Produkte inkl. Top Trainer, Boosterbundle, Displays) als discovery_only aufgenommen; Status per JS-App nicht lesbar.
+- Geprüft, nicht aufgenommen: gate-to-the-games.de (88.000 URLs, 12-MB-Sitemaps, fast nur Einzelkarten), alternate.de (nicht geprüft), galeria/kaufland/real/ebay/conrad blocken.
+- Gotcha: `looks_like_challenge` schlägt bei robots.txt von MediaMarkt/Saturn an (Pfad `/cdn-cgi/challenge-platform/` steht in Disallow) – robots.txt-Text nicht auf Marker prüfen, falls MediaMarkt je aufgenommen wird.
 
 ## Offene Aufgaben (in dieser Reihenfolge)
 1. GitHub: öffentliches Repo anlegen + pushen, Secret `NTFY_TOPIC` (vom Nutzer), Workflow-Schreibrechte, `notify-test` und `monitor` starten (siehe Befehle unten).
