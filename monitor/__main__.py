@@ -114,6 +114,9 @@ def cmd_report(args) -> int:
         c = by_source.setdefault(p.get("source", "?"), Counter())
         c["ignoriert" if p.get("ignored") else p.get("status", "unknown")] += 1
         c[f"methode:{p.get('method', '-')}"] += 1
+    for p in state.products.values():
+        if p.get("lastmod_log"):
+            by_source.setdefault(p.get("source", "?"), Counter())["lastmod-Aenderungen"] += 1
     for sid, sst in sorted(state.data["sources"].items()):
         print(f"== {sid}: letzter Lauf {sst.get('last_discovery', '-')}, Fehler in Folge {sst.get('fail_count', 0)}"
               + (f", PAUSIERT bis {sst['blocked_until']}" if sst.get("blocked_until") else "")

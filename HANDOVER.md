@@ -44,6 +44,11 @@ einzigen echten Abruf.** Bekannt aus robots.txt bzw. Sitemaps (über ein Web-Too
 - Neuer Quelltyp `rss` + Event `deal` (Priorität 4). Quelle `mydealz`: Feed `/rss/gruppe/pokemon`, alle 10 Min. Liefert Funde auch von Pokémon Center DE, Thalia, Rossmann, Netto, Rewe, Expert, Amazon. Test `RssTest`.
 - Weitere Feeds (Gruppen/Händler bei mydealz) nach 3.1b ergänzen; E-Mail-Weiterleitung der Shop-Benachrichtigungen nach ntfy ist noch offen.
 
+## Update 22.10.2026 (lastmod-Logger, 2. Feed)
+- `runner._register` protokolliert `lastmod`-Änderungen (`lastmod_log`, max. 5/Produkt, nur Log, kein Ping); `python -m monitor report` zeigt „lastmod-Aenderungen“. Ziel: nach ~1 Tag auswerten, ob Änderungen bei Mighty-Cards (minutengenaues lastmod) Restocks anzeigen -> ggf. Ping einbauen.
+- mydealz-Quelle hat zweiten Feed (`gruppe/spielzeug`); neue Feeds starten mit eigener Baseline (`seeded_feeds`).
+- Offen beim Nutzer: Awin/Belboon-Feeds prüfen, deutsche Restock-Communities (Discord/Telegram) beitreten.
+
 ## Offene Aufgaben (in dieser Reihenfolge)
 1. GitHub: öffentliches Repo anlegen + pushen, Secret `NTFY_TOPIC` (vom Nutzer), Workflow-Schreibrechte, `notify-test` und `monitor` starten (siehe Befehle unten).
 2. Weitere Quellen nach AGENTS.md 3.1 prüfen (Galeria, Spiele Max, Kaufland, lokale Hamburger TCG-Shops): jeweils robots.txt + Blockade.

@@ -121,6 +121,11 @@ class Runner:
             if seeded:
                 log.info("[%s] NEU: %s", src.id, url)
         elif lastmod and p.get("lastmod") != lastmod:
+            # Nur protokollieren (kein Ping): Auswertung, ob lastmod-Änderungen Restocks anzeigen
+            hist = p.setdefault("lastmod_log", [])
+            hist.append([iso(self.now), p.get("lastmod"), lastmod])
+            del hist[:-5]
+            log.info("[%s] lastmod geändert: %s (%s -> %s)", src.id, url, p.get("lastmod"), lastmod)
             p["lastmod"] = lastmod
             p["force_check"] = True  # Shop hat die Seite geändert -> bald prüfen
 
@@ -177,10 +182,14 @@ class Runner:
     def discover_rss(self, src: Source, sst: dict) -> None:
         """Öffentlicher RSS-Feed (z. B. Community-Deals): neue, zum Filter passende Einträge melden.
         Der erste Lauf ist Baseline (keine Meldungen)."""
-        seeded = bool(sst.get("seeded"))
         seen = list(sst.get("seen_items", []))
         seen_set = set(seen)
+        seeded_feeds = set(sst.get("seeded_feeds", []))
+        if sst.get("seeded"):  # Zustand von vor Einführung von seeded_feeds
+            seeded_feeds.update(src.urls[:1])
         for feed_url in src.urls:
+            # Neu hinzugefügter Feed = eigene Baseline (keine Meldungswelle)
+            seeded = feed_url in seeded_feeds
             resp = self.client.get(feed_url)
             for item in parsing.parse_rss(resp.content or resp.text.encode()):
                 if item.guid in seen_set:
@@ -190,7 +199,9 @@ class Runner:
                 if seeded and self.matcher.matches(item.title):
                     self.events.append(Event(DEAL, src.name, item.title, url=item.link or None,
                                              hint=src.region_hint or None))
+            seeded_feeds.add(feed_url)
         sst["seen_items"] = seen[-500:]
+        sst["seeded_feeds"] = sorted(seeded_feeds)
 
     def sync_watchlist(self, src: Source) -> None:
         for url in src.urls:

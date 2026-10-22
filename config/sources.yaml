@@ -92,6 +92,8 @@ sources:
     enabled: true
     urls:
       - "https://www.mydealz.de/rss/gruppe/pokemon"
+      # Zweiter Feed (robots.txt geprüft 22.10.2026): Spielzeug-Deals, gefiltert durch matching.
+      - "https://www.mydealz.de/rss/gruppe/spielzeug"
     every_minutes: 10
     region_hint: "Fund aus der Community – Shop & Verfügbarkeit im Link prüfen."
 

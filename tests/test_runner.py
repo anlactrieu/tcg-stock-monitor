@@ -213,3 +213,37 @@ class RssTest(_Base, unittest.TestCase):
         self.assertEqual([e.title for e in ev], ["Pokémon Booster Display neu"])
         self.assertEqual(ev[0].kind, "deal")
         self.assertEqual(run(self._feed("Pokémon Booster Display neu"), 40), [])
+
+
+class LastmodLogTest(_Base, unittest.TestCase):
+    def test_lastmod_change_is_logged_not_pinged(self):
+        src = Source("shop", "Testshop", "sitemap", dict(SRC.raw, discovery_only=True))
+        def run(lm, minutes_later):
+            index, child = sitemap_with(TTB)
+            child = child.replace("</loc>", f"</loc><lastmod>{lm}</lastmod>")
+            session = FakeSession({INDEX: (200, index.replace("<lastmod>", "<x>").replace("</lastmod>", "</x>")), CHILD: (200, child)})
+            client = PoliteClient("ua", "tcg-stock-monitor", min_delay=0, session=session, sleep=no_sleep)
+            return Runner(self.settings, [src], self.state, client, Matcher.from_config(self.settings["matching"]),
+                          self.now + timedelta(minutes=minutes_later)).run()
+        self.assertEqual(run("2026-10-20T10:00:00Z", 0), [])
+        self.assertEqual(run("2026-10-22T11:00:00Z", 40), [])
+        self.assertEqual(len(self.state.products[TTB]["lastmod_log"]), 1)
+
+
+class RssNewFeedTest(_Base, unittest.TestCase):
+    def test_added_feed_gets_own_baseline(self):
+        f1, f2 = "https://feed.test/a", "https://feed.test/b"
+        def feed(*t):
+            return '<rss version="2.0"><channel>' + "".join(
+                f"<item><title>{x}</title><link>https://d.test/{x[:3]}</link><guid>g-{x}</guid></item>" for x in t) + "</channel></rss>"
+        def run(urls, bodies, minutes_later):
+            src = Source("feed", "Feed", "rss", {"id": "feed", "type": "rss", "urls": urls, "every_minutes": 10})
+            session = FakeSession({u: (200, b) for u, b in bodies.items()})
+            client = PoliteClient("ua", "tcg-stock-monitor", min_delay=0, session=session, sleep=no_sleep)
+            return Runner(self.settings, [src], self.state, client, Matcher.from_config(self.settings["matching"]),
+                          self.now + timedelta(minutes=minutes_later)).run()
+        run([f1], {f1: feed("Pokemon Booster Display A")}, 0)
+        ev = run([f1, f2], {f1: feed("Pokemon Booster Display A"), f2: feed("Pokemon Top Trainer Box B")}, 20)
+        self.assertEqual(ev, [], "neuer Feed: Baseline")
+        ev = run([f1, f2], {f1: feed("Pokemon Booster Display A"), f2: feed("Pokemon Top Trainer Box B", "Pokemon Tin C")}, 40)
+        self.assertEqual([e.title for e in ev], ["Pokemon Tin C"])
