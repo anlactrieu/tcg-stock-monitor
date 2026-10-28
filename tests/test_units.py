@@ -142,6 +142,16 @@ class NotifyTest(unittest.TestCase):
         self.assertEqual(len(s.posts), 2)
         self.assertIn("5 Pokémon-TCG-Meldungen", s.posts[1]["json"]["title"])
 
+    def test_every_event_kind_can_be_sent(self):
+        from monitor import notify
+        kinds = [v for k, v in vars(notify).items() if k.isupper() and isinstance(v, str) and v in notify._STYLE]
+        self.assertGreaterEqual(len(kinds), 6)
+        s = FakeSession()
+        n = Notifier("https://ntfy.test", "geheim", max_single=20, session=s)
+        n.send([Event(k, "Q", "T") for k in kinds])
+        self.assertEqual(len(s.posts), len(kinds))
+        self.assertEqual(s.posts[0]["json"]["priority"], 5)
+
     def test_no_topic_no_network(self):
         s = FakeSession()
         n = Notifier("https://ntfy.test", None, session=s)

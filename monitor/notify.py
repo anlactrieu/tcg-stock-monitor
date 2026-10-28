@@ -92,8 +92,8 @@ class Notifier:
         if not events:
             return
         # Wichtigste zuerst
-        order = [AVAILABLE, PREORDER, NEW_LISTING, BLOCKED, ERROR]
-        events = sorted(events, key=lambda e: order.index(e.kind))
+        # (nach ntfy-Priorität; neue Ereignisarten brauchen nur einen _STYLE-Eintrag)
+        events = sorted(events, key=lambda e: -_STYLE[e.kind][1])
         if len(events) <= self.max_single:
             for e in events:
                 prefix, prio, tags = _STYLE[e.kind]
