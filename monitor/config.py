@@ -21,6 +21,9 @@ DEFAULTS = {
     "out_of_stock_patterns": [],
     "assume_relevant": False,
     "discovery_only": False,
+    "title_any": [],
+    "title_not": [],
+    "kind": "deal",
     "urls": [],
 }
 REQUIRED = {

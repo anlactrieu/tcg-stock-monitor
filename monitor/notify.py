@@ -20,6 +20,7 @@ AVAILABLE = "available"
 PREORDER = "preorder"
 NEW_LISTING = "new_listing"
 DEAL = "deal"
+NEWS = "news"
 BLOCKED = "blocked"
 ERROR = "error"
 
@@ -29,6 +30,7 @@ _STYLE = {
     PREORDER: ("Vorbestellbar", 4, ["large_blue_circle", "calendar"]),
     NEW_LISTING: ("Neu gelistet", 3, ["new"]),
     DEAL: ("Community-Fund", 4, ["loudspeaker"]),
+    NEWS: ("Ankündigung", 3, ["mega"]),
     BLOCKED: ("Quelle pausiert", 2, ["warning"]),
     ERROR: ("Quelle fehlerhaft", 2, ["x"]),
 }

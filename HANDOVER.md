@@ -49,6 +49,11 @@ einzigen echten Abruf.** Bekannt aus robots.txt bzw. Sitemaps (über ein Web-Too
 - mydealz-Quelle hat zweiten Feed (`gruppe/spielzeug`); neue Feeds starten mit eigener Baseline (`seeded_feeds`).
 - Offen beim Nutzer: Awin/Belboon-Feeds prüfen, deutsche Restock-Communities (Discord/Telegram) beitreten.
 
+## Update 28.10.2026
+- Bugfix: `notify.send` sortierte nach fester Liste und stürzte bei `deal` ab (Läufe 25.–28.10. rot). Jetzt Sortierung nach `_STYLE`-Priorität + Test `test_every_event_kind_can_be_sent`. Fehler-Mails gibt GitHub selbst (Nutzer reicht das).
+- Neue RSS-Quellen: `preisjaeger` (AT-Schwester von mydealz, Pokémon-Center-DE-Funde) und `pokezentrum` (News-Feed, `kind: news`, nur Signalwörter via `title_any`/`title_not`). Neue Event-Art `news` (Prio 3).
+- Geprüft, nicht aufgenommen: dealdoktor (kein Pokémon), hotukdeals (UK), mydealz `/rss/hot` und `gesellschaftsspiele` (kaum Pokémon), pokewiki-Atom (nicht unterstützt).
+
 ## Offene Aufgaben (in dieser Reihenfolge)
 1. GitHub: öffentliches Repo anlegen + pushen, Secret `NTFY_TOPIC` (vom Nutzer), Workflow-Schreibrechte, `notify-test` und `monitor` starten (siehe Befehle unten).
 2. Weitere Quellen nach AGENTS.md 3.1 prüfen (Galeria, Spiele Max, Kaufland, lokale Hamburger TCG-Shops): jeweils robots.txt + Blockade.

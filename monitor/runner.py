@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 from . import parsing
 from .config import Source
 from .fetcher import Blocked, Disallowed, FetchError, PoliteClient
-from .matching import Matcher
-from .notify import AVAILABLE, BLOCKED, DEAL, ERROR, NEW_LISTING, PREORDER, Event
+from .matching import Matcher, normalize
+from .notify import AVAILABLE, BLOCKED, ERROR, NEW_LISTING, PREORDER, Event
 from .state import State, iso, is_due, parse_iso
 
 log = logging.getLogger(__name__)
@@ -196,12 +196,22 @@ class Runner:
                     continue
                 seen_set.add(item.guid)
                 seen.append(item.guid)
-                if seeded and self.matcher.matches(item.title):
-                    self.events.append(Event(DEAL, src.name, item.title, url=item.link or None,
+                if seeded and self._feed_title_ok(src, item.title):
+                    self.events.append(Event(src.kind, src.name, item.title, url=item.link or None,
                                              hint=src.region_hint or None))
             seeded_feeds.add(feed_url)
         sst["seen_items"] = seen[-500:]
         sst["seeded_feeds"] = sorted(seeded_feeds)
+
+    def _feed_title_ok(self, src: Source, title: str) -> bool:
+        """Ohne title_any: normaler matching-Filter. Mit title_any (z. B. News-Feeds): Pokémon +
+        eines der Signalwörter, ohne title_not und ohne globale Ausschlüsse."""
+        if not src.title_any:
+            return self.matcher.matches(title)
+        t = normalize(title)
+        return (self.matcher.has_required(title) and not self.matcher.excluded(title)
+                and any(normalize(k) in t for k in src.title_any)
+                and not any(normalize(k) in t for k in src.title_not))
 
     def sync_watchlist(self, src: Source) -> None:
         for url in src.urls:

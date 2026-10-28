@@ -247,3 +247,22 @@ class RssNewFeedTest(_Base, unittest.TestCase):
         self.assertEqual(ev, [], "neuer Feed: Baseline")
         ev = run([f1, f2], {f1: feed("Pokemon Booster Display A"), f2: feed("Pokemon Top Trainer Box B", "Pokemon Tin C")}, 40)
         self.assertEqual([e.title for e in ev], ["Pokemon Tin C"])
+
+
+class RssNewsTest(_Base, unittest.TestCase):
+    def test_title_any_news_feed(self):
+        feed = "https://news.test/feed"
+        src = Source("news", "News", "rss", {"id": "news", "type": "rss", "urls": [feed], "every_minutes": 10,
+                                            "kind": "news", "title_any": ["vorgestellt"], "title_not": ["pocket"]})
+        def body(*t):
+            return '<rss version="2.0"><channel>' + "".join(
+                f"<item><title>{x}</title><link>https://n.test/{i}</link><guid>{x}</guid></item>" for i, x in enumerate(t)) + "</channel></rss>"
+        def run(b, m):
+            session = FakeSession({feed: (200, b)})
+            client = PoliteClient("ua", "tcg-stock-monitor", min_delay=0, session=session, sleep=no_sleep)
+            return Runner(self.settings, [src], self.state, client, Matcher.from_config(self.settings["matching"]),
+                          self.now + timedelta(minutes=m)).run()
+        run(body("Pokémon Alt vorgestellt"), 0)
+        ev = run(body("Pokémon Alt vorgestellt", "Neues Pokémon-Set M7 offiziell vorgestellt!",
+                      "Pokémon TCG Pocket vorgestellt", "Wetter vorgestellt"), 20)
+        self.assertEqual([(e.kind, e.title) for e in ev], [("news", "Neues Pokémon-Set M7 offiziell vorgestellt!")])

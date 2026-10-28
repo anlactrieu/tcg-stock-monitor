@@ -97,6 +97,31 @@ sources:
     every_minutes: 10
     region_hint: "Fund aus der Community – Shop & Verfügbarkeit im Link prüfen."
 
+  - id: preisjaeger
+    name: "preisjäger.at (Community)"
+    type: rss
+    # Österreichische Schwesterseite von mydealz (gleiche Plattform). Meldet u. a. Pokémon-Center-DE-
+    # und Amazon-Funde. robots.txt geprüft 22.10.2026. Österreichische Läden sind per Filter ausgeschlossen.
+    enabled: true
+    urls:
+      - "https://www.preisjaeger.at/rss/gruppe/pokemon"
+    every_minutes: 15
+    region_hint: "Fund aus der Community (AT-Plattform) – Shop & Verfügbarkeit im Link prüfen."
+
+  - id: pokezentrum
+    name: "PokeZentrum (News)"
+    type: rss
+    # Fan-Newsseite zum Pokémon TCG. Meldet nur Ankündigungen neuer Sets/Produkte
+    # (Signalwörter in title_any), keine Verfügbarkeit. robots.txt geprüft 22.10.2026.
+    enabled: true
+    kind: news
+    urls:
+      - "https://pokezentrum.de/feed/"
+    title_any: ["vorgestellt", "erscheint", "vorbestell", "offiziell", "enthüllt", "release"]
+    title_not: ["pocket", "tcg live", "wertvollsten", "rekordpreis", "figuren"]
+    every_minutes: 30
+    region_hint: "Ankündigung – Vorbestellstart bei den Shops beobachten."
+
   - id: thalia
     name: "Thalia"
     type: listing
